@@ -1,0 +1,6 @@
+@TelcoNet.API_HostAddress = http://localhost:5153
+
+GET {{TelcoNet.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

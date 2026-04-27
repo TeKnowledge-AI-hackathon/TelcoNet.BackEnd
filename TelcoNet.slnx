@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TelcoNet.API/TelcoNet.API.csproj" />
+  <Project Path="TelcoNet.Core/TelcoNet.Core.csproj" />
+  <Project Path="TelcoNet.Data/TelcoNet.Data.csproj" />
+  <Project Path="TelcoNet.Plugins/TelcoNet.Plugins.csproj" />
+</Solution>
