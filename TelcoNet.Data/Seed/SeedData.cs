@@ -24,23 +24,38 @@ public static class SeedData
             new User
             {
                 FullName = "Admin User",
-                Email = "admin@telconet.ng",
+                Email = "admin@noc.com",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
                 Role = UserRole.Admin
             },
             new User
             {
-                FullName = "Chidi Okafor",
-                Email = "chidi.okafor@telconet.ng",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Engineer@123"),
-                Role = UserRole.Engineer
+                FullName = "NOC Operator",
+                Email = "operator@noc.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Operator@123"),
+                Role = UserRole.Operator
             },
             new User
             {
-                FullName = "Funke Adeyemi",
-                Email = "funke.adeyemi@telconet.ng",
+                FullName = "Read-Only Viewer",
+                Email = "viewer@noc.com",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Viewer@123"),
                 Role = UserRole.Viewer
+            },
+            new User
+            {
+                FullName = "John Smith",
+                Email = "john.smith@noc.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Operator@123"),
+                Role = UserRole.Operator
+            },
+            new User
+            {
+                FullName = "Sarah Johnson",
+                Email = "sarah.j@noc.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Viewer@123"),
+                Role = UserRole.Viewer,
+                IsActive = false // Inactive user as shown in design
             }
         );
     }

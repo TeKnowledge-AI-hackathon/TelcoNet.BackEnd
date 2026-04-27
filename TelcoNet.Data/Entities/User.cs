@@ -5,7 +5,7 @@ namespace TelcoNet.Data.Entities;
 public enum UserRole
 {
     Viewer,
-    Engineer,
+    Operator,
     Admin
 }
 
