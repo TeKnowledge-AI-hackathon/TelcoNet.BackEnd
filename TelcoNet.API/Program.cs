@@ -12,7 +12,13 @@ using TelcoNet.Data.Seed;
 using TelcoNet.Plugins;
 
 // ── Load environment variables ──
-DotNetEnv.Env.Load();
+// Try solution root first, then current directory
+var solutionRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+var envPath = Path.Combine(solutionRoot, ".env");
+if (File.Exists(envPath))
+    DotNetEnv.Env.Load(envPath);
+else
+    DotNetEnv.Env.Load(); // fallback to current directory
 
 var builder = WebApplication.CreateBuilder(args);
 
