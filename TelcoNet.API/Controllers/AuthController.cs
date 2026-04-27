@@ -44,4 +44,14 @@ public class AuthController : ControllerBase
             return Conflict(new { error = ex.Message });
         }
     }
+
+    /// <summary>Logout user. For JWT, this just logs the action in the audit trail.</summary>
+    [HttpPost("logout")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public IActionResult Logout()
+    {
+        // For JWT, actual logout happens on the frontend by deleting the token.
+        // We provide this endpoint so the AuditLoggingMiddleware can capture the "Logout" event.
+        return Ok(new { message = "Logged out successfully" });
+    }
 }

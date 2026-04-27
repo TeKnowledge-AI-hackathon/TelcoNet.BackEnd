@@ -24,6 +24,17 @@
   }
   ```
 
+### 1b. Logout
+- **Endpoint:** `POST /auth/logout`
+- **Description:** Returns a 200 OK and records the "Logout" event in the Audit Logs. *Note: Actual logout is handled by the frontend deleting the JWT token from storage.*
+- **Headers:** `Authorization: Bearer <token>`
+- **Response:**
+  ```json
+  {
+    "message": "Logged out successfully"
+  }
+  ```
+
 ---
 *⚠️ **Note:** All endpoints below require the JWT token in the header: `Authorization: Bearer <token>`*
 ---
