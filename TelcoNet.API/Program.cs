@@ -23,16 +23,18 @@ else
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Configuration from .env ──
-var azureEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")
-    ?? throw new InvalidOperationException("AZURE_OPENAI_ENDPOINT is not set in .env");
-var azureApiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY")
-    ?? throw new InvalidOperationException("AZURE_OPENAI_API_KEY is not set in .env");
-var azureModelId = Environment.GetEnvironmentVariable("AZURE_OPENAI_MODEL_ID")
-    ?? throw new InvalidOperationException("AZURE_OPENAI_MODEL_ID is not set in .env");
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
-    ?? "TelcoNet-Default-Secret-Key-MinLength-32!!";
-var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "TelcoNet.API";
-var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "TelcoNet.Client";
+var azureEndpoint = (Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT") ?? "").Trim().TrimEnd('\\');
+if (string.IsNullOrEmpty(azureEndpoint)) throw new InvalidOperationException("AZURE_OPENAI_ENDPOINT is not set");
+
+var azureApiKey = (Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY") ?? "").Trim().TrimEnd('\\');
+if (string.IsNullOrEmpty(azureApiKey)) throw new InvalidOperationException("AZURE_OPENAI_API_KEY is not set");
+
+var azureModelId = (Environment.GetEnvironmentVariable("AZURE_OPENAI_MODEL_ID") ?? "").Trim().TrimEnd('\\');
+if (string.IsNullOrEmpty(azureModelId)) throw new InvalidOperationException("AZURE_OPENAI_MODEL_ID is not set");
+
+var jwtSecret = (Environment.GetEnvironmentVariable("JWT_SECRET") ?? "TelcoNet-Hackathon-SuperSecret-Key-2026!!").Trim().TrimEnd('\\');
+var jwtIssuer = (Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "TelcoNet.API").Trim().TrimEnd('\\');
+var jwtAudience = (Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "TelcoNet.Client").Trim().TrimEnd('\\');
 
 // ── Database (SQLite) ──
 builder.Services.AddDbContext<AppDbContext>(options =>
