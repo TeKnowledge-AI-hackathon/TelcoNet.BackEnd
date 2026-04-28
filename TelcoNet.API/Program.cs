@@ -87,7 +87,23 @@ builder.Services.AddScoped<Kernel>(sp =>
 
 // ── API Services ──
 builder.Services.AddControllers();
-builder.Services.AddOpenApi(); // .NET 10 built-in OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApiDocument(config =>
+{
+    config.DocumentName = "v1";
+    config.Title = "TelcoNet API";
+    config.Version = "v1";
+
+    config.AddSecurity("Bearer", Enumerable.Empty<string>(), new NSwag.OpenApiSecurityScheme
+    {
+        Type = NSwag.OpenApiSecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        Description = "Enter your JWT token here. You do NOT need to type 'Bearer '."
+    });
+
+    config.OperationProcessors.Add(new NSwag.Generation.Processors.Security.AspNetCoreOperationSecurityScopeProcessor("Bearer"));
+});
 
 // ── CORS (so frontend can call the API) ──
 builder.Services.AddCors(options =>
@@ -105,13 +121,9 @@ var app = builder.Build();
 // ── Middleware Pipeline ──
 app.UseMiddleware<ExceptionMiddleware>();
 
-// API Documentation (Scalar — modern Swagger alternative)
-app.MapOpenApi();
-app.MapScalarApiReference(options =>
-{
-    options.WithTitle("TelcoNet API");
-    options.WithTheme(ScalarTheme.DeepSpace);
-});
+// API Documentation (Swagger UI using NSwag)
+app.UseOpenApi(); // Serves the registered OpenAPI/Swagger documents
+app.UseSwaggerUi(); // Serves the Swagger UI web ui
 
 app.UseCors();
 app.UseAuthentication();
@@ -129,8 +141,7 @@ using (var scope = app.Services.CreateScope())
 
 Console.WriteLine("╔════════════════════════════════════════════════════╗");
 Console.WriteLine("║           TelcoNet API — Running!                  ║");
-Console.WriteLine("║  API Docs: http://localhost:5096/scalar/v1          ║");
-Console.WriteLine("║  OpenAPI:  http://localhost:5096/openapi/v1.json    ║");
+Console.WriteLine("║  Swagger Docs: http://localhost:5153/swagger        ║");
 Console.WriteLine("║  Azure OpenAI: Connected                           ║");
 Console.WriteLine("╚════════════════════════════════════════════════════╝");
 
