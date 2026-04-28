@@ -28,7 +28,6 @@ public class RegisterRequestDto
     [MinLength(8, ErrorMessage = "Password must be at least 8 characters long")]
     public string Password { get; set; } = string.Empty;
     
-    public string Role { get; set; } = "Viewer";
 }
 
 public class AuthResponseDto
