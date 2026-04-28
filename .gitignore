@@ -31,3 +31,6 @@ obj/
 .DS_Store
 Thumbs.db
 /.vs/TelcoNet.slnx/FileContentIndex
+/.vs/TelcoNet.slnx/config/applicationhost.config
+/.vs/TelcoNet.slnx/v18
+/.vs/TelcoNet.slnx/DesignTimeBuild
