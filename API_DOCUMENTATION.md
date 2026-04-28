@@ -163,10 +163,23 @@
 - **Description:** Populates the User Management table.
 - **Response:** Array of users containing `id, fullName, email, role, status, lastActive`
 
-### 13. Update User Role
+### 13. Create New User
+- **Endpoint:** `POST /users`
+- **Description:** Creates a new user with a specific role immediately without needing to verify email.
+- **Request Body:**
+  ```json
+  {
+    "fullName": "Jane Doe",
+    "email": "jane@noc.com",
+    "password": "Password123!",
+    "role": "Operator"
+  }
+  ```
+
+### 14. Update User Role
 - **Endpoint:** `PUT /users/{id}/role`
 - **Request Body:** `{ "role": "Operator" }` (Valid roles: `Admin`, `Operator`, `Viewer`)
 
-### 14. Audit Logs
+### 15. Audit Logs
 - **Endpoint:** `GET /audit-logs?page=1&pageSize=50`
 - **Description:** Returns the security audit trail of all API requests made by users.

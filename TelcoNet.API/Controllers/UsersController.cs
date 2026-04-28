@@ -39,6 +39,40 @@ public class UsersController : ControllerBase
         return Ok(users);
     }
 
+    /// <summary>Create a new user and assign a role (Admin only).</summary>
+    [HttpPost]
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserDto request)
+    {
+        var exists = await _db.Users.AnyAsync(u => u.Email == request.Email);
+        if (exists) return Conflict(new { error = "User with this email already exists." });
+
+        if (!Enum.TryParse<UserRole>(request.Role, true, out var role))
+            return BadRequest(new { error = "Invalid role. Use: Viewer, Operator, or Admin." });
+
+        var user = new User
+        {
+            FullName = request.FullName,
+            Email = request.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Role = role,
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true
+        };
+
+        _db.Users.Add(user);
+        await _db.SaveChangesAsync();
+
+        return Ok(new UserDto
+        {
+            Id = user.Id,
+            FullName = user.FullName,
+            Email = user.Email,
+            Role = user.Role.ToString(),
+            CreatedAt = user.CreatedAt,
+            IsActive = user.IsActive
+        });
+    }
+
     /// <summary>Get a specific user by ID (Admin only).</summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
