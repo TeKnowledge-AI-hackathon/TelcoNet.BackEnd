@@ -92,14 +92,37 @@ public static class SeedData
             new NetworkNode { NodeId = "KN-001", Name = "Kano Metro Hub", Region = "Kano Metro", Zone = "North West", Latitude = 12.0022, Longitude = 8.5919, Status = NodeStatus.Healthy, NodeType = "Hub" },
 
             // Enugu — Degraded
-            new NetworkNode { NodeId = "EN-001", Name = "Enugu Hub", Region = "Enugu", Zone = "South East", Latitude = 6.4414, Longitude = 7.4985, Status = NodeStatus.Degraded, NodeType = "Hub" }
+            new NetworkNode { NodeId = "EN-001", Name = "Enugu Hub", Region = "Enugu", Zone = "South East", Latitude = 6.4414, Longitude = 7.4985, Status = NodeStatus.Degraded, NodeType = "Hub" },
+
+            // Jos South (Plateau) — Healthy (Newly Added)
+            new NetworkNode { NodeId = "JS-001", Name = "Jos South Hub", Region = "Jos South", Zone = "North Central", Latitude = 9.8000, Longitude = 8.8500, Status = NodeStatus.Healthy, NodeType = "Hub" },
+            new NetworkNode { NodeId = "JS-012", Name = "Rayfield Tower 12", Region = "Jos South", Zone = "North Central", Latitude = 9.8150, Longitude = 8.8720, Status = NodeStatus.Healthy, NodeType = "Tower" },
+            new NetworkNode { NodeId = "JS-005", Name = "Bukuru Tower 05", Region = "Jos South", Zone = "North Central", Latitude = 9.7820, Longitude = 8.8410, Status = NodeStatus.Healthy, NodeType = "Tower" },
+
+            // Ibadan (Oyo) — Degraded due to congestion
+            new NetworkNode { NodeId = "IB-001", Name = "Ibadan Central Hub", Region = "Ibadan", Zone = "South West", Latitude = 7.3775, Longitude = 3.9470, Status = NodeStatus.Degraded, NodeType = "Hub" },
+            new NetworkNode { NodeId = "IB-022", Name = "Bodija Tower 22", Region = "Ibadan", Zone = "South West", Latitude = 7.4100, Longitude = 3.9200, Status = NodeStatus.Degraded, NodeType = "Tower" },
+
+            // Kaduna Central — Healthy
+            new NetworkNode { NodeId = "KD-001", Name = "Kaduna Central Hub", Region = "Kaduna Central", Zone = "North West", Latitude = 10.5105, Longitude = 7.4165, Status = NodeStatus.Healthy, NodeType = "Hub" },
+
+            // Benin City (Edo) — Critical Outage
+            new NetworkNode { NodeId = "BN-001", Name = "Benin Hub", Region = "Benin City", Zone = "South South", Latitude = 6.3350, Longitude = 5.6037, Status = NodeStatus.Down, NodeType = "Hub" },
+            new NetworkNode { NodeId = "BN-009", Name = "Uselu Tower 09", Region = "Benin City", Zone = "South South", Latitude = 6.3510, Longitude = 5.6120, Status = NodeStatus.Down, NodeType = "Tower" },
+
+            // Warri (Delta) — Warning
+            new NetworkNode { NodeId = "WR-001", Name = "Warri Port Hub", Region = "Warri", Zone = "South South", Latitude = 5.5167, Longitude = 5.7500, Status = NodeStatus.Degraded, NodeType = "Hub" }
         );
     }
 
     private static void SeedNetworkMetrics(AppDbContext context)
     {
         var now = DateTime.UtcNow;
-        var regions = new[] { "Lagos West", "Lagos Island", "Victoria Island", "Ikeja", "Abuja Central", "Port Harcourt", "Kano Metro", "Enugu" };
+        var regions = new[] { 
+            "Lagos West", "Lagos Island", "Victoria Island", "Ikeja", 
+            "Abuja Central", "Port Harcourt", "Kano Metro", "Enugu",
+            "Jos South", "Ibadan", "Kaduna Central", "Benin City", "Warri" 
+        };
 
         // Generate 24 hours of metrics for each region (hourly intervals)
         foreach (var region in regions)
@@ -152,6 +175,28 @@ public static class SeedData
                 SignalStrengthDbm = -75 + random.Next(0, 12),
                 Timestamp = timestamp
             },
+            "Benin City" => new NetworkMetric
+            {
+                Region = region,
+                LatencyMs = hoursAgo > 5 ? 35 + random.Next(0, 15) : 1200,
+                ThroughputMbps = hoursAgo > 5 ? 55 + random.NextDouble() * 20 : 0,
+                PacketLossPercent = hoursAgo > 5 ? random.NextDouble() * 1.5 : 95,
+                UptimePercent = hoursAgo > 5 ? 99 + random.NextDouble() * 1 : 0,
+                ActiveUsers = hoursAgo > 5 ? 6000 + random.Next(0, 4000) : 0,
+                SignalStrengthDbm = hoursAgo > 5 ? -55 + random.Next(0, 10) : -130,
+                Timestamp = timestamp
+            },
+            "Ibadan" => new NetworkMetric
+            {
+                Region = region,
+                LatencyMs = 210 + random.Next(0, 100), // Congested
+                ThroughputMbps = 5 + random.NextDouble() * 5,
+                PacketLossPercent = 8 + random.NextDouble() * 5,
+                UptimePercent = 95 + random.NextDouble() * 4,
+                ActiveUsers = 15000 + random.Next(0, 5000),
+                SignalStrengthDbm = -80 + random.Next(0, 15),
+                Timestamp = timestamp
+            },
             _ => new NetworkMetric // Healthy regions
             {
                 Region = region,
@@ -179,6 +224,24 @@ public static class SeedData
                 Severity = "Critical",
                 StartedAt = now.AddHours(-3),
                 EstimatedUsersAffected = 15000
+            },
+            new Outage
+            {
+                Region = "Benin City",
+                AffectedNodeId = "BN-001",
+                Reason = "Power outage at main distribution hub. Fuel theft from backup generator detected.",
+                Severity = "Critical",
+                StartedAt = now.AddHours(-5),
+                EstimatedUsersAffected = 22000
+            },
+            new Outage
+            {
+                Region = "Ibadan",
+                AffectedNodeId = "IB-001",
+                Reason = "Severe congestion due to religious festival — capacity upgrade scheduled.",
+                Severity = "Major",
+                StartedAt = now.AddHours(-24),
+                EstimatedUsersAffected = 12000
             },
             new Outage
             {
