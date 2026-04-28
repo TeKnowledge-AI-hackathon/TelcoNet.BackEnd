@@ -93,7 +93,7 @@ You serve network engineers, NOC operators, and management — adjust your tone 
         };
 
         // Get AI response
-        Microsoft.SemanticKernel.ChatCompletion.ChatMessageContent result;
+        ChatMessageContent result;
         try 
         {
             result = await _chatCompletion.GetChatMessageContentAsync(
