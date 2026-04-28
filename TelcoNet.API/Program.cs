@@ -61,6 +61,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<INetworkService, NetworkService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ICopilotService, CopilotService>();
+builder.Services.AddHostedService<TelcoNet.API.Services.NetworkMonitoringWorker>();
 
 // ── Semantic Kernel + Plugins ──
 builder.Services.AddScoped<Kernel>(sp =>
