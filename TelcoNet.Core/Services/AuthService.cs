@@ -20,9 +20,9 @@ public class AuthService : IAuthService
     public AuthService(AppDbContext db)
     {
         _db = db;
-        _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "TelcoNet-Default-Secret-Key-MinLength-32!!";
-        _jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "TelcoNet.API";
-        _jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "TelcoNet.Client";
+        _jwtSecret = (Environment.GetEnvironmentVariable("JWT_SECRET") ?? "TelcoNet-Hackathon-SuperSecret-Key-2026!!").Trim().TrimEnd('\\');
+        _jwtIssuer = (Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "TelcoNet.API").Trim().TrimEnd('\\');
+        _jwtAudience = (Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "TelcoNet.Client").Trim().TrimEnd('\\');
     }
 
     public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
