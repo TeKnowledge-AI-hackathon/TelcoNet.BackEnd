@@ -93,11 +93,25 @@ You serve network engineers, NOC operators, and management — adjust your tone 
         };
 
         // Get AI response
-        var result = await _chatCompletion.GetChatMessageContentAsync(
-            chatHistory,
-            executionSettings: settings,
-            kernel: _kernel
-        );
+        Microsoft.SemanticKernel.ChatCompletion.ChatMessageContent result;
+        try 
+        {
+            result = await _chatCompletion.GetChatMessageContentAsync(
+                chatHistory,
+                executionSettings: settings,
+                kernel: _kernel
+            );
+        }
+        catch (Exception ex)
+        {
+            return new ChatResponseDto
+            {
+                SessionId = session.SessionId,
+                Response = $"⚠️ AI Error: {ex.Message}",
+                PluginsUsed = new List<string>(),
+                Timestamp = DateTime.UtcNow
+            };
+        }
 
         var responseText = result.Content ?? "I'm sorry, I couldn't process that request. Please try again.";
 
