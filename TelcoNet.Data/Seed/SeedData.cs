@@ -14,6 +14,7 @@ public static class SeedData
         SeedNetworkMetrics(context);
         SeedOutages(context);
         SeedAlerts(context);
+        SeedSystemSettings(context);
 
         context.SaveChanges();
     }
@@ -365,6 +366,20 @@ public static class SeedData
                 IsAcknowledged = true,
                 AcknowledgedAt = now.AddMinutes(-2)
             }
+        );
+    }
+
+    private static void SeedSystemSettings(AppDbContext context)
+    {
+        if (context.SystemSettings.Any()) return;
+
+        context.SystemSettings.AddRange(
+            new SystemSetting { Key = "RefreshRate", Value = "30", Group = "Dashboard", Description = "Data Refresh Rate (seconds)" },
+            new SystemSetting { Key = "TwoFactorAuth", Value = "true", Group = "Security", Description = "Require 2FA for all users" },
+            new SystemSetting { Key = "SessionTimeout", Value = "30", Group = "Security", Description = "Session Timeout (minutes)" },
+            new SystemSetting { Key = "AuditLogging", Value = "true", Group = "Security", Description = "Log all user actions" },
+            new SystemSetting { Key = "MetricsRetention", Value = "90", Group = "Data", Description = "Metrics Retention (days)" },
+            new SystemSetting { Key = "AlertRetention", Value = "180", Group = "Data", Description = "Alert Log Retention (days)" }
         );
     }
 }

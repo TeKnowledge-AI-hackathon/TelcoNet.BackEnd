@@ -57,8 +57,13 @@ You serve network engineers, NOC operators, and management — adjust your tone 
             session = CreateNewSession(userId);
         }
 
-        // Build chat history from stored messages
-        var chatHistory = new ChatHistory(SystemPrompt);
+        // Build chat history
+        var chatHistory = new ChatHistory();
+        
+        // For o1 models, we avoid System Messages and instead provide instructions
+        // in the first user message.
+        string combinedMessage = $"[SYSTEM INSTRUCTIONS]:\n{SystemPrompt}\n\n[USER QUERY]: {request.Message}";
+
         foreach (var msg in session.Messages.OrderBy(m => m.Timestamp))
         {
             if (msg.Role == "user")
@@ -67,8 +72,15 @@ You serve network engineers, NOC operators, and management — adjust your tone 
                 chatHistory.AddAssistantMessage(msg.Content);
         }
 
-        // Add current user message
-        chatHistory.AddUserMessage(request.Message);
+        // Add current user message (with instructions if it's the start of the session)
+        if (session.Messages.Count == 0)
+        {
+            chatHistory.AddUserMessage(combinedMessage);
+        }
+        else
+        {
+            chatHistory.AddUserMessage(request.Message);
+        }
 
         // Save user message to DB
         session.Messages.Add(new ChatMessage
