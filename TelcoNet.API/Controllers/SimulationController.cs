@@ -16,17 +16,17 @@ public class SimulationController : ControllerBase
         _db = db;
     }
 
-    [HttpPost("nodes/{nodeId}/status")]
-    public async Task<IActionResult> SetNodeStatus(string nodeId, [FromQuery] NodeStatus status)
+    [HttpPost("nodes/status")]
+    public async Task<IActionResult> SetNodeStatus([FromBody] StatusRequest request)
     {
-        var node = await _db.NetworkNodes.FirstOrDefaultAsync(n => n.NodeId == nodeId);
+        var node = await _db.NetworkNodes.FirstOrDefaultAsync(n => n.NodeId == request.NodeId);
         if (node == null) return NotFound(new { error = "Node not found" });
 
-        node.Status = status;
+        node.Status = request.Status;
         node.LastUpdated = DateTime.UtcNow;
         await _db.SaveChangesAsync();
 
-        return Ok(new { message = $"Node {nodeId} status updated to {status}" });
+        return Ok(new { message = $"Node {request.NodeId} status updated to {request.Status}" });
     }
 
     [HttpPost("trigger-outage")]
@@ -82,11 +82,15 @@ public class SimulationController : ControllerBase
         return Ok(new { message = "Alert triggered successfully" });
     }
 
-    [HttpPost("resolve-outage/{id}")]
-    public async Task<IActionResult> ResolveOutage(int id)
+    [HttpPost("resolve-outage")]
+    public async Task<IActionResult> ResolveOutage()
     {
-        var outage = await _db.Outages.FindAsync(id);
-        if (outage == null) return NotFound(new { error = "Outage not found" });
+        var outage = await _db.Outages
+            .Where(o => o.ResolvedAt == null)
+            .OrderByDescending(o => o.StartedAt)
+            .FirstOrDefaultAsync();
+
+        if (outage == null) return NotFound(new { error = "No active outages found." });
 
         outage.ResolvedAt = DateTime.UtcNow;
 
@@ -98,9 +102,10 @@ public class SimulationController : ControllerBase
         }
 
         await _db.SaveChangesAsync();
-        return Ok(new { message = "Outage resolved successfully" });
+        return Ok(new { message = $"Outage at {node?.Name ?? "Unknown"} resolved successfully" });
     }
 }
 
+public record StatusRequest(string NodeId, NodeStatus Status);
 public record OutageRequest(string NodeId, string Reason, string Severity = "Critical");
 public record AlertRequest(string Title, string Description, string Severity, string Region);
