@@ -38,23 +38,61 @@ public class NetworkService : INetworkService
         };
     }
 
-    public async Task<List<NetworkNodeDto>> GetNodesAsync(string? region = null)
+    public async Task<List<NetworkNodeDto>> GetNodesAsync(string? region = null, string? timeRange = "1h")
     {
         var query = _db.NetworkNodes.AsQueryable();
 
         if (!string.IsNullOrEmpty(region))
             query = query.Where(n => n.Region.ToLower().Contains(region.ToLower()));
 
-        return await query.Select(n => new NetworkNodeDto
+        var nodes = await query.ToListAsync();
+        
+        if (timeRange == "1h")
         {
-            NodeId = n.NodeId,
-            Name = n.Name,
-            Region = n.Region,
-            Lat = n.Latitude,
-            Lng = n.Longitude,
-            Status = n.Status.ToString().ToLower(),
-            NodeType = n.NodeType
-        }).ToListAsync();
+            return nodes.Select(n => new NetworkNodeDto
+            {
+                NodeId = n.NodeId,
+                Name = n.Name,
+                Region = n.Region,
+                Lat = n.Latitude,
+                Lng = n.Longitude,
+                Status = n.Status.ToString().ToLower(),
+                NodeType = n.NodeType
+            }).ToList();
+        }
+
+        // For historical views, check if nodes had outages/alerts in the timeframe
+        var hours = timeRange == "7d" ? 168 : 24;
+        var since = DateTime.UtcNow.AddHours(-hours);
+        
+        var historicalOutages = await _db.Outages
+            .Where(o => o.StartedAt >= since || (o.ResolvedAt == null || o.ResolvedAt >= since))
+            .ToListAsync();
+            
+        var historicalAlerts = await _db.Alerts
+            .Where(a => a.CreatedAt >= since)
+            .ToListAsync();
+
+        return nodes.Select(n => {
+            var status = n.Status.ToString().ToLower();
+            
+            // If node had a major outage in this window, show as down
+            if (historicalOutages.Any(o => o.AffectedNodeId == n.NodeId))
+                status = "down";
+            else if (historicalAlerts.Any(a => a.Region == n.Region && a.Severity == "Warning"))
+                status = "degraded";
+
+            return new NetworkNodeDto
+            {
+                NodeId = n.NodeId,
+                Name = n.Name,
+                Region = n.Region,
+                Lat = n.Latitude,
+                Lng = n.Longitude,
+                Status = status,
+                NodeType = n.NodeType
+            };
+        }).ToList();
     }
 
     public async Task<List<OutageDto>> GetOutagesAsync(string? region = null, bool activeOnly = true)

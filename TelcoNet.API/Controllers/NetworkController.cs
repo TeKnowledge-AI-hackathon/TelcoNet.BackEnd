@@ -26,9 +26,9 @@ public class NetworkController : ControllerBase
 
     /// <summary>Get network nodes with tower statuses (for Map view).</summary>
     [HttpGet("nodes")]
-    public async Task<IActionResult> GetNodes([FromQuery] string? region = null)
+    public async Task<IActionResult> GetNodes([FromQuery] string? region = null, [FromQuery] string? timeRange = "1h")
     {
-        var nodes = await _networkService.GetNodesAsync(region);
+        var nodes = await _networkService.GetNodesAsync(region, timeRange);
         return Ok(new { region = region ?? "All", nodes });
     }
 
