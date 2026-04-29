@@ -57,14 +57,8 @@ You serve network engineers, NOC operators, and management — adjust your tone 
             session = CreateNewSession(userId);
         }
 
-        // Build chat history
-        // NOTE: For reasoning models (o1), we avoid the "System" role if possible 
-        // or combine it into the first user message.
-        var chatHistory = new ChatHistory();
-        
-        // Add instructions as the first message
-        chatHistory.AddUserMessage($"INSTRUCTIONS: {SystemPrompt}");
-        chatHistory.AddAssistantMessage("Understood. I am TelcoNet AI, ready to assist with your network operations queries.");
+        // Build chat history from stored messages
+        var chatHistory = new ChatHistory(SystemPrompt);
 
         foreach (var msg in session.Messages.OrderBy(m => m.Timestamp))
         {
